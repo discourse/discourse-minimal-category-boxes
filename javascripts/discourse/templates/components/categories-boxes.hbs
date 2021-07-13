@@ -437,6 +437,9 @@
       <div class="category-box-inner">
         {{#unless c.isMuted}}
           <div class="category-logo {{if c.uploaded_logo.url "" "no-logo-present"}}" style="background-color: #{{html-safe c.color}}">
+            <span class="category-abbreviation">
+              {{getAbbreviation c.name}}
+            </span>
             {{#if c.uploaded_logo.url}}
               {{cdn-img
                 src=c.uploaded_logo.url

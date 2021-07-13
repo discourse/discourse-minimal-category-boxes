@@ -137,7 +137,16 @@
           width: 100%;
         }
         &.no-logo-present {
-          width: 8px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100px;
+          height: 100px;
+          .category-abbreviation {
+            color: white;
+            font-weight: bold;
+            font-size: 2em;
+          }
         }
       }
       .category-details {
