@@ -11,7 +11,6 @@ export default {
         tagName: "div",
         @discourseComputed()
         isCategoryPage() {
-          console.log(this.topicTrackingState.filterCategory);
           if (this.topicTrackingState.filterCategory && this.topicTrackingState.filterCategory.has_children) {
             return true;
           } else {
