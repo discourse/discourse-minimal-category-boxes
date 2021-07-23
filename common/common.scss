@@ -141,7 +141,8 @@
           justify-content: center;
           align-items: center;
           width: 100px;
-          height: 100px;
+          height: 100%;
+          min-height: 100px;
           .category-abbreviation {
             color: white;
             font-weight: bold;
