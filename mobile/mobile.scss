@@ -1,0 +1,5 @@
+.category-logo:not(.no-logo-present) + .category-details {
+  max-height: 132px;
+  height: calc(132px - 1em);
+  padding: 0.5em !important;
+}
