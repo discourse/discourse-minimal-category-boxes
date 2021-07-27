@@ -185,6 +185,9 @@
     margin-bottom: 0;
     max-height: 3em;
     text-align: left;
+    p {
+      margin: 0;
+    }
   }
   .subcategories {
     display: none;
