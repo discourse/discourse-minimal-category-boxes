@@ -12,6 +12,7 @@ export default {
         _allowedCategories(selectedCategories) {
           let availableCategories = [];
           
+          // gets all currently available category IDs that a user can view
           this.categories.forEach(category => {
             if (availableCategories.indexOf(category.id === -1)) {
               availableCategories.push(category.id);
@@ -21,12 +22,18 @@ export default {
             }
           });
 
-          availableCategories = availableCategories.map(id => {
-            return Category.findById(id);
+          // remove all category IDs that have not been specified for 
+          // the custom section
+          availableCategories = availableCategories.filter(categoryId => {
+            return selectedCategories.indexOf(categoryId) !== -1;
           });
 
-          availableCategories = availableCategories.filter(category => {
-            return selectedCategories.indexOf(category.id) !== -1;
+          // fetch the category data using the filtered list
+          // we do this, because sometimes a list may have included subcategories
+          // which are not immediately present in the categories provided by
+          // `this`
+          availableCategories = availableCategories.map(id => {
+            return Category.findById(id);
           });
 
           return availableCategories;
