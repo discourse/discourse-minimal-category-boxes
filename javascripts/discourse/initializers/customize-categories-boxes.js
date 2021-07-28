@@ -9,31 +9,14 @@ export default {
     withPluginApi("0.8.14", api => {
       api.modifyClass("component:categories-boxes", {
         tagName: "div",
-        _allowedCategories(selectedCategories) {
-          let availableCategories = [];
-          
-          // gets all currently available category IDs that a user can view
-          this.categories.forEach(category => {
-            if (availableCategories.indexOf(category.id === -1)) {
-              availableCategories.push(category.id);
-              if (category.has_children) {
-                availableCategories = [...availableCategories, ...category.subcategory_ids];
-              }
+        _allowedCategories(selectedCategories) {          
+          // filters categories to only include selected categories for each section
+          let availableCategories = this.site.categories.filter(category => {
+            if (selectedCategories.indexOf(category.id) !== -1) {
+              return true;
+            } else {
+              return false;
             }
-          });
-
-          // remove all category IDs that have not been specified for 
-          // the custom section
-          availableCategories = availableCategories.filter(categoryId => {
-            return selectedCategories.indexOf(categoryId) !== -1;
-          });
-
-          // fetch the category data using the filtered list
-          // we do this, because sometimes a list may have included subcategories
-          // which are not immediately present in the categories provided by
-          // `this`
-          availableCategories = availableCategories.map(id => {
-            return Category.findById(id);
           });
 
           return availableCategories;
