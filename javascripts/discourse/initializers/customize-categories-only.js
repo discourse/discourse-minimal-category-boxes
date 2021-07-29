@@ -3,7 +3,7 @@ import discourseComputed from "discourse-common/utils/decorators";
 import Category from "discourse/models/category";
 
 export default {
-  name: "customize-categories-boxes",
+  name: "customize-categories-only",
 
   initialize() {
     withPluginApi("0.8.14", api => {
