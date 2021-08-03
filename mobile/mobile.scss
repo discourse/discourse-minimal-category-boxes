@@ -43,6 +43,10 @@
   grid-template-columns: 1fr !important;
 }
 
+.category-box {
+  position: relative;
+}
+
 .parent-box-link {
   // This avoids an issue with nested links by layering links instead
   &:before {
