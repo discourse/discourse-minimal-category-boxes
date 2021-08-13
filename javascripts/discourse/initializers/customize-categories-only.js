@@ -1,5 +1,6 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import discourseComputed from "discourse-common/utils/decorators";
+import { inject as service } from "@ember/service";
 import Category from "discourse/models/category";
 
 export default {
@@ -9,6 +10,7 @@ export default {
     withPluginApi("0.8.14", api => {
       api.modifyClass("component:categories-only", {
         tagName: "div",
+        router: service(),
         _allowedCategories(selectedCategories) {          
           // filters categories to only include selected categories for each section
           let availableCategories = this.site.categories.filter(category => {
@@ -23,7 +25,8 @@ export default {
         },
         @discourseComputed()
         isCategoryPage() {
-          if (this.topicTrackingState.filterCategory && this.topicTrackingState.filterCategory.has_children) {
+          let isCategoryPage = this.router.currentRoute.name.includes("category");
+          if (isCategoryPage) {
             return true;
           } else {
             return false;
