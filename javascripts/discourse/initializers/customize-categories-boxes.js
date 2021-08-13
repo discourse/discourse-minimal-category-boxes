@@ -11,6 +11,7 @@ export default {
       api.modifyClass("component:categories-boxes", {
         tagName: "div",
         router: service(),
+        classNameBindings: ["noneSelected:none-selected"],
         _allowedCategories(selectedCategories) {          
           // filters categories to only include selected categories for each section
           let availableCategories = this.site.categories.filter(category => {
@@ -31,6 +32,10 @@ export default {
           } else {
             return false;
           }
+        },
+        @discourseComputed()
+        noneSelected() {
+          return this.router.currentRoute.name.includes("None");
         },
         @discourseComputed()
         firstCategories() {
