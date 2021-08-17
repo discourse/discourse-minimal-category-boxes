@@ -152,6 +152,9 @@
           height: 100%;
           width: 100%;
         }
+        .category-abbreviation {
+          display: none;
+        }
         &.no-logo-present {
           display: flex;
           justify-content: center;
@@ -160,6 +163,7 @@
           height: 100%;
           min-height: 100px;
           .category-abbreviation {
+            display: block;
             color: white;
             font-weight: bold;
             font-size: 2em;
