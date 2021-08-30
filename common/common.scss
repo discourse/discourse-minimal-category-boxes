@@ -43,7 +43,7 @@
   }
 }
 
-.category-list,
+.category-list:not(.theme-setting),
 .navigation-categories .list-container .full-width #list-area .contents,
 .categories-list .list-container .full-width #header-list-area .contents {
   display: none;
