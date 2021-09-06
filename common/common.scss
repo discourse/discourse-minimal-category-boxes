@@ -278,7 +278,7 @@
 }
 
 @media (max-width: 800px) {
-  body.category {
+  body.category, body.navigation-categories {
     .custom-category-boxes {
       grid-template-columns: 1fr;
     }
