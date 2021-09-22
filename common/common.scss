@@ -16,6 +16,13 @@
   }
 }
 
+.category .muted {
+  opacity: 25%;
+  &:hover {
+    opacity: 100%;
+  }
+}
+
 .navigation-categories, .categories-list {
   .navigation-container {
     border-bottom: 3px solid var(--primary-low-mid-or-secondary-high);
@@ -30,6 +37,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  &::empty {
+    display: none;
+  }
 }
 
 .category {
@@ -288,8 +298,4 @@
       grid-template-columns: 1fr;
     }
   }
-}
-
-.category-box:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
 }
