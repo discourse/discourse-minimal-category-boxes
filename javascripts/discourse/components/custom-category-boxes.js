@@ -22,7 +22,17 @@ export default Component.extend({
   @discourseComputed()
   shouldRenderHeadings() {
     let isCategoryPage = this.router.currentRoute.name.includes("category");
-    if (!isCategoryPage) {
+    let hasCategoriesSet = false;
+    if (
+      settings.first_categories ||
+      settings.second_categories ||
+      settings.third_categories ||
+      settings.fourth_categories ||
+      settings.fifth_categories
+    ) {
+      hasCategoriesSet = true;
+    }
+    if (!isCategoryPage && hasCategoriesSet) {
       return true;
     } else {
       return false;
