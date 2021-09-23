@@ -22,12 +22,9 @@ export default Component.extend({
   @discourseComputed()
   shouldRenderHeadings() {
     let isCategoryPage = this.router.currentRoute.name.includes("category");
-    console.log(this.router.currentRoute.name);
     if (!isCategoryPage) {
-      console.log('should render');
       return true;
     } else {
-      console.log('shouldnt render');
       return false;
     }
   },
