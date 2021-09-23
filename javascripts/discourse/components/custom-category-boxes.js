@@ -20,9 +20,9 @@ export default Component.extend({
     return availableCategories;
   },
   @discourseComputed()
-  shouldRender() {
+  shouldRenderHeadings() {
     let isCategoryPage = this.router.currentRoute.name.includes("category");
-    if (isCategoryPage) {
+    if (!isCategoryPage) {
       return true;
     } else {
       return false;
