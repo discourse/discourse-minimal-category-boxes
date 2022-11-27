@@ -9,6 +9,6 @@ registerUnbound("getAbbreviation", categoryName => {
     abbr = abbr[0].charAt(0).toLowerCase() + abbr[1].charAt(0).toLowerCase();
   } else {
     abbr = abbr[0].charAt(0).toLowerCase() + abbr[0].charAt(1).toLowerCase();
-
+  }
   return abbr;
 });
