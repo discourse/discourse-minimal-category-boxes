@@ -15,7 +15,6 @@ registerUnbound("getAbbreviation", categoryName => {
   } else if (abbr = 'Tf') {
     abbr = "TF"
   } else {
-    abbr = abbr
   }
 
   return abbr;
