@@ -6,7 +6,7 @@ registerUnbound("getAbbreviation", categoryName => {
   let abbr = categoryName.replace(" and", "").split(" ");
   abbr.replace("-","");
   if (abbr.length > 1) {
-    abbr = abbr[0].charAt(0).toLowerCase() + abbr[1].charAt(0).toLowerCase();
+    abbr = abbr[0].charAt(0).toLowerCase() + abbr[1].charAt(0).toLowerCase() + abbr[2].charAt(0).toLowerCase();
   } else {
     abbr = abbr[0].charAt(0).toLowerCase() + abbr[0].charAt(1).toLowerCase();
   }
