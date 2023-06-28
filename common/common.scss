@@ -230,11 +230,14 @@
     line-height: 140%;
     margin-top: 0;
     text-align: left;
+    .rtl & {
+      text-align: right;
+    }
     .d-icon {
       color: var(--primary-very-high);
       font-size: 16px;
       height: 16px !important;
-      margin-right: 4px !important;
+      margin-inline-end: 4px !important;
       width: 16px !important;
     }
   }
@@ -250,6 +253,9 @@
     margin-bottom: 0;
     max-height: 3em;
     text-align: left;
+    .rtl & {
+      text-align: right;
+    }
     p {
       margin: 0;
       display: -webkit-box;
