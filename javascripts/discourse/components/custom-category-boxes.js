@@ -1,15 +1,22 @@
-import Component from "@ember/component";
-import discourseComputed from "discourse-common/utils/decorators";
+import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
 
-export default Component.extend({
-  tagName: "div",
-  router: service(),
-  classNames: ["custom-category-boxes-container"],
-  classNameBindings: ["noneSelected:none-selected"],
-  _allowedCategories(selectedCategories) {
+export default class extends Component {
+  @service router;
+
+  get classNames() {
+    const classNames = ["custom-category-boxes-container"];
+
+    if (this.noneSelected) {
+      classNames.push("none-selected");
+    }
+
+    return classNames.join(" ");
+  }
+
+  #allowedCategories(selectedCategories) {
     // filters categories to only include selected categories for each section
-    let availableCategories = this.site.categories.filter(category => {
+    let availableCategories = this.site.categories.filter((category) => {
       if (selectedCategories.indexOf(category.id) !== -1) {
         return true;
       } else {
@@ -18,11 +25,12 @@ export default Component.extend({
     });
 
     return availableCategories;
-  },
-  @discourseComputed()
-  shouldRenderHeadings() {
+  }
+
+  get shouldRenderHeadings() {
     let isCategoryPage = this.router.currentRoute.name.includes("category");
     let hasCategoriesSet = false;
+
     if (
       settings.first_categories ||
       settings.second_categories ||
@@ -37,39 +45,51 @@ export default Component.extend({
     } else {
       return false;
     }
-  },
-  @discourseComputed()
-  noneSelected() {
+  }
+
+  get noneSelected() {
     return this.router.currentRoute.name.includes("None");
-  },
-  @discourseComputed()
+  }
+
+  getAbbreviation(categoryName) {
+    let abbr = categoryName.replace(" and", "").split(" ");
+
+    if (abbr.length > 1) {
+      abbr = abbr[0].charAt(0).toUpperCase() + abbr[1].charAt(0).toLowerCase();
+    } else {
+      abbr = abbr[0].charAt(0).toUpperCase() + abbr[0].charAt(1).toLowerCase();
+    }
+
+    return abbr;
+  }
+
   firstCategories() {
-    return this._allowedCategories(
-      settings.first_categories.split("|").map(id => Number(id))
-    );
-  },
-  @discourseComputed()
-  secondCategories() {
-    return this._allowedCategories(
-      settings.second_categories.split("|").map(id => Number(id))
-    );
-  },
-  @discourseComputed()
-  thirdCategories() {
-    return this._allowedCategories(
-      settings.third_categories.split("|").map(id => Number(id))
-    );
-  },
-  @discourseComputed()
-  fourthCategories() {
-    return this._allowedCategories(
-      settings.fourth_categories.split("|").map(id => Number(id))
-    );
-  },
-  @discourseComputed()
-  fifthCategories() {
-    return this._allowedCategories(
-      settings.fifth_categories.split("|").map(id => Number(id))
+    return this.#allowedCategories(
+      settings.first_categories.split("|").map((id) => Number(id))
     );
   }
-});
+
+  secondCategories() {
+    return this.#allowedCategories(
+      settings.second_categories.split("|").map((id) => Number(id))
+    );
+  }
+
+  thirdCategories() {
+    return this.#allowedCategories(
+      settings.third_categories.split("|").map((id) => Number(id))
+    );
+  }
+
+  fourthCategories() {
+    return this.#allowedCategories(
+      settings.fourth_categories.split("|").map((id) => Number(id))
+    );
+  }
+
+  fifthCategories() {
+    return this.#allowedCategories(
+      settings.fifth_categories.split("|").map((id) => Number(id))
+    );
+  }
+}
