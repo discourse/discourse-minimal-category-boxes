@@ -3,6 +3,7 @@ import { inject as service } from "@ember/service";
 
 export default class extends Component {
   @service router;
+  @service site;
 
   get classNames() {
     const classNames = ["custom-category-boxes-container"];
@@ -40,6 +41,7 @@ export default class extends Component {
     ) {
       hasCategoriesSet = true;
     }
+
     if (!isCategoryPage && hasCategoriesSet) {
       return true;
     } else {
@@ -51,43 +53,31 @@ export default class extends Component {
     return this.router.currentRoute.name.includes("None");
   }
 
-  getAbbreviation(categoryName) {
-    let abbr = categoryName.replace(" and", "").split(" ");
-
-    if (abbr.length > 1) {
-      abbr = abbr[0].charAt(0).toUpperCase() + abbr[1].charAt(0).toLowerCase();
-    } else {
-      abbr = abbr[0].charAt(0).toUpperCase() + abbr[0].charAt(1).toLowerCase();
-    }
-
-    return abbr;
-  }
-
-  firstCategories() {
+  get firstCategories() {
     return this.#allowedCategories(
       settings.first_categories.split("|").map((id) => Number(id))
     );
   }
 
-  secondCategories() {
+  get secondCategories() {
     return this.#allowedCategories(
       settings.second_categories.split("|").map((id) => Number(id))
     );
   }
 
-  thirdCategories() {
+  get thirdCategories() {
     return this.#allowedCategories(
       settings.third_categories.split("|").map((id) => Number(id))
     );
   }
 
-  fourthCategories() {
+  get fourthCategories() {
     return this.#allowedCategories(
       settings.fourth_categories.split("|").map((id) => Number(id))
     );
   }
 
-  fifthCategories() {
+  get fifthCategories() {
     return this.#allowedCategories(
       settings.fifth_categories.split("|").map((id) => Number(id))
     );
