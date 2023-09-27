@@ -7,5 +7,238 @@ on:
   pull_request:
 
 jobs:
-  ci:
-    uses: discourse/.github/.github/workflows/discourse-theme.yml@v1
+  linting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: ESLint
+        if: ${{ !cancelled() }}
+        run: yarn eslint --ext .js,.js.es6 --no-error-on-unmatched-pattern {test,javascripts}
+
+      - name: Prettier
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          yarn prettier -v
+          files=$(find javascripts desktop mobile common scss -type f \( -name "*.scss" -or -name "*.js" -or -name "*.es6" \) 2> /dev/null) || true
+          if [ -n "$files" ]; then
+            yarn prettier --list-different $files
+          fi
+          if [ 0 -lt $(find test -type f \( -name "*.js" -or -name "*.es6" \) 2> /dev/null | wc -l) ]; then
+            yarn prettier --list-different "test/**/*.{js,es6}"
+          fi
+
+      - name: Ember template lint
+        if: ${{ !cancelled() }}
+        run: yarn ember-template-lint --no-error-on-unmatched-pattern javascripts
+
+  check_for_tests:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.check_tests.outputs.matrix }}
+      has_tests: ${{ steps.check_tests.outputs.has_tests }}
+
+    steps:
+      - name: Install component
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          path: tmp/component
+          fetch-depth: 1
+
+      - name: Check For Test Types
+        id: check_tests
+        shell: ruby {0}
+        working-directory: tmp/component
+        run: |
+          require 'json'
+
+          matrix = []
+
+          matrix << 'frontend' if Dir.glob("test/javascripts/**/*.{js,es6}").any?
+          matrix << 'system' if Dir.glob("spec/system/**/*.rb").any?
+
+          puts "Detected test types: #{matrix.inspect}"
+
+          File.write(ENV["GITHUB_OUTPUT"], "matrix=#{matrix.to_json}\n", mode: 'a+')
+
+          if matrix.any?
+            File.write(ENV["GITHUB_OUTPUT"], "has_tests=true\n", mode: 'a+')
+          end
+
+  test:
+    name: ${{ matrix.build_type || '' }}_tests
+    needs: check_for_tests
+    if: ${{ needs.check_for_tests.outputs.has_tests }}
+    runs-on: ubuntu-latest
+    container: discourse/discourse_test:slim-browsers
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type: ${{ fromJSON(needs.check_for_tests.outputs.matrix) }}
+
+    env:
+      DISCOURSE_HOSTNAME: www.example.com
+      RUBY_GLOBAL_METHOD_CACHE_SIZE: 131072
+      PGUSER: discourse
+      PGPASSWORD: discourse
+
+    steps:
+      - name: Set working directory owner
+        run: chown root:root .
+
+      - uses: actions/checkout@v3
+        with:
+          repository: discourse/discourse
+          fetch-depth: 1
+
+      - name: Install component
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          path: tmp/component
+          fetch-depth: 1
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "ci@ci.invalid"
+          git config --global user.name "Discourse CI"
+
+      - name: Clone additional plugins
+        uses: discourse/.github/actions/clone-additional-plugins@v1
+        with:
+          ssh_private_key: ${{ secrets.ssh_private_key }}
+          about_json_path: tmp/component/about.json
+
+      - name: Start redis
+        run: |
+          redis-server /etc/redis/redis.conf &
+
+      - name: Start Postgres
+        run: |
+          chown -R postgres /var/run/postgresql
+          sudo -E -u postgres script/start_test_db.rb
+          sudo -u postgres psql -c "CREATE ROLE $PGUSER LOGIN SUPERUSER PASSWORD '$PGPASSWORD';"
+
+      - name: Bundler cache
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-
+
+      - name: Sets test Rails ENV
+        if: matrix.build_type == 'system'
+        run: |
+          echo "RAILS_ENV=test" >> $GITHUB_ENV
+
+      - name: Sets development Rails ENV
+        if: matrix.build_type == 'frontend'
+        run: |
+          echo "RAILS_ENV=development" >> $GITHUB_ENV
+
+      - name: Setup gems
+        run: |
+          gem install bundler --conservative -v $(awk '/BUNDLED WITH/ { getline; gsub(/ /,""); print $0 }' Gemfile.lock)
+          bundle config --local path vendor/bundle
+          bundle config --local deployment true
+          bundle config --local without development
+          bundle install --jobs 4
+          bundle clean
+
+      - name: Lint English locale
+        run: bundle exec ruby script/i18n_lint.rb "tmp/component/locales/en.yml"
+
+      - name: Get yarn cache directory
+        id: yarn-cache-dir
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Yarn cache
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: Fetch app state cache
+        uses: actions/cache@v3
+        id: app-cache
+        with:
+          path: tmp/app-cache
+          key: >-
+            ${{ hashFiles('.github/workflows/tests.yml') }}-
+            ${{ hashFiles('db/**/*', 'plugins/**/db/**/*') }}-
+
+      - name: Restore database from cache
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: psql -f tmp/app-cache/cache.sql postgres
+
+      - name: Restore uploads from cache
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: rm -rf public/uploads && cp -r tmp/app-cache/uploads public/uploads
+
+      - name: Create and migrate database
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: |
+          bin/rake db:create
+          bin/rake db:migrate
+
+      - name: Dump database for cache
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: mkdir -p tmp/app-cache && pg_dumpall > tmp/app-cache/cache.sql
+
+      - name: Dump uploads for cache
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: rm -rf tmp/app-cache/uploads && cp -r public/uploads tmp/app-cache/uploads
+
+      - name: Ember Build for System Tests
+        if: matrix.build_type == 'system'
+        run: bin/ember-cli --build
+
+      - name: Theme System Tests
+        if: matrix.build_type == 'system'
+        run: bin/rspec --format documentation tmp/component/spec/system
+        timeout-minutes: 10
+
+      - name: Upload failed system test screenshots
+        uses: actions/upload-artifact@v3
+        if: matrix.build_type == 'system' && failure()
+        with:
+          name: failed-system-test-screenshots
+          path: tmp/capybara/*.png
+
+      - name: Create theme archive
+        if: matrix.build_type == 'frontend'
+        run: |
+          cd tmp/component
+          git archive --format=tar.gz HEAD > ../../theme.tar.gz
+
+      - name: Component QUnit
+        if: matrix.build_type == 'frontend'
+        run: |
+          THEME_NAME=$(ruby -e 'require "json"; puts JSON.parse(File.read("tmp/component/about.json"))["name"]')
+          THEME_ARCHIVE=theme.tar.gz bundle exec rake themes:install:archive
+          UNICORN_TIMEOUT=120 bundle exec rake "themes:qunit[name,$THEME_NAME]"
+        timeout-minutes: 10
