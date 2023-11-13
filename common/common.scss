@@ -229,6 +229,7 @@
     letter-spacing: 0.03em;
     line-height: 140%;
     margin-top: 0;
+    margin-bottom: 0;
     text-align: left;
     .rtl & {
       text-align: right;
@@ -281,6 +282,7 @@
 #header-list-area {
   .custom-category-boxes {
     grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 32px;
     .category-box-inner {
       column-gap: 24px;
       .category-logo {
@@ -297,6 +299,9 @@
     .description {
       display: none;
     }
+  }
+  .custom-category-boxes-container + .category-boxes {
+    display: none;
   }
 }
 
