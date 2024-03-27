@@ -6,13 +6,13 @@
   data-notification-level={{@category.notificationLevelString}}
   data-url={{@category.url}}
   class="category category-box category-box-{{@category.slug}}
-    {{if @category.isMuted "muted"}}
-    {{if noCategoryStyle "no-category-boxes-style"}}"
+    {{if @category.isMuted 'muted'}}
+    {{if noCategoryStyle 'no-category-boxes-style'}}"
 >
   <div class="category-box-inner">
     <div
       class="category-logo
-        {{if @category.uploaded_logo.url "" "no-logo-present"}}"
+        {{if @category.uploaded_logo.url '' 'no-logo-present'}}"
       style={{this.backgroundColor}}
     >
       {{#if @category.uploaded_logo.url}}
@@ -55,7 +55,7 @@
             data-notification-level={{subcategory.notificationLevelString}}
             style={{border-color subcategory.color}}
             class="subcategory with-subcategories
-              {{if subcategory.uploaded_logo.url "has-logo" "no-logo"}}"
+              {{if subcategory.uploaded_logo.url 'has-logo' 'no-logo'}}"
           >
             <div class="subcategory-box-inner">
               {{category-title-link tagName="h4" category=subcategory}}
