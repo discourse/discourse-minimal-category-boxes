@@ -16,13 +16,7 @@
       style={{this.backgroundColor}}
     >
       {{#if @category.uploaded_logo.url}}
-        {{cdn-img
-          src=@category.uploaded_logo.url
-          class="logo"
-          width=@category.uploaded_logo.width
-          height=@category.uploaded_logo.height
-          alt=""
-        }}
+        <CategoryLogo @category={{@category}} />
       {{else}}
         <span class="category-abbreviation">
           {{this.getAbbreviation}}
@@ -79,13 +73,7 @@
           {{#each @category.subcategories as |sc|}}
             <a class="subcategory" href={{sc.url}}>
               <span class="subcategory-image-placeholder">
-                {{cdn-img
-                  src=sc.uploaded_logo.url
-                  class="logo"
-                  width=sc.uploaded_logo.width
-                  height=sc.uploaded_logo.height
-                  alt=""
-                }}
+                <CategoryLogo @category={{sc}} />
               </span>
               {{category-link sc hideParent="true"}}
             </a>
