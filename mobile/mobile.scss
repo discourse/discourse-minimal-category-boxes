@@ -52,7 +52,7 @@
 
 .parent-box-link {
   // This avoids an issue with nested links by layering links instead
-  &:before {
+  &::before {
     content: "";
     position: absolute;
     z-index: 0;
