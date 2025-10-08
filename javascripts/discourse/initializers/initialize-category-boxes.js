@@ -1,6 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 import CustomCategoryBoxes from "../components/custom-category-boxes";
 
-export default apiInitializer("1.14.0", (api) => {
+export default apiInitializer((api) => {
   api.renderInOutlet("above-discovery-categories", CustomCategoryBoxes);
 });
