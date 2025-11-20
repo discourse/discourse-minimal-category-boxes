@@ -11,29 +11,12 @@
   justify-content: center;
 }
 
-.categories-list {
-  .navigation-container {
-    border-bottom: 0;
-  }
-}
-
 .category .muted,
 .navigation-categories .muted {
   opacity: 25%;
 
   &:hover {
     opacity: 100%;
-  }
-}
-
-.navigation-categories,
-.categories-list {
-  .navigation-container {
-    border-bottom: 3px solid var(--primary-low-mid-or-secondary-high);
-  }
-
-  .list-container {
-    padding-top: 32px;
   }
 }
 
