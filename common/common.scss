@@ -162,7 +162,7 @@
 .custom-category-boxes:not(.above-discovery-categories-outlet) {
   display: grid;
   grid-auto-flow: row;
-  grid-gap: 32px;
+  gap: 32px;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
   width: 100%;
