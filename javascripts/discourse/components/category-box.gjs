@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import CategoryLogo from "discourse/components/category-logo";
 import CategoryTitleBefore from "discourse/components/category-title-before";
 import CategoryTitleLink from "discourse/components/category-title-link";
@@ -7,12 +7,11 @@ import PluginOutlet from "discourse/components/plugin-outlet";
 import borderColor from "discourse/helpers/border-color";
 import categoryLink from "discourse/helpers/category-link";
 import icon from "discourse/helpers/d-icon";
-import htmlSafe0 from "discourse/helpers/html-safe";
 import lazyHash from "discourse/helpers/lazy-hash";
 
 export default class extends Component {
   get backgroundColor() {
-    return htmlSafe(`background-color: #${this.args.category.color}`);
+    return trustHTML(`background-color: #${this.args.category.color}`);
   }
 
   get getAbbreviation() {
@@ -68,7 +67,7 @@ export default class extends Component {
           </div>
 
           <div class="description">
-            <p>{{htmlSafe0 @category.description_excerpt}}</p>
+            <p>{{trustHTML @category.description_excerpt}}</p>
           </div>
 
           {{#if @category.isGrandParent}}
